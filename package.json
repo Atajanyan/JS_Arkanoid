@@ -1,0 +1,23 @@
+{
+  "name": "intership_04",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "node-sass -w sass -o css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atajanyan/JS_Arkanoid.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atajanyan/JS_Arkanoid/issues"
+  },
+  "homepage": "https://github.com/Atajanyan/JS_Arkanoid#readme",
+  "dependencies": {
+    "node-sass": "^9.0.0"
+  }
+}
