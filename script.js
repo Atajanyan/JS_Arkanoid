@@ -19,9 +19,9 @@ start.style.top = canvas.height / 2 + "px";
 let board = {
   xDelta: 0,
   x: boardX,
-  y: canvas.height - 40,
+  y: canvas.height - 100,
   width,
-  height: 10,
+  height: 70,
   speed: 10,
 };
 
@@ -31,7 +31,7 @@ let boll = {
   x: board.x + board.width / 2 - size / 2,
   y: board.y - size,
   radius: size,
-  speed: 5,
+  speed: 2,
 };
 
 let blocks = [];
@@ -112,9 +112,9 @@ function update() {
     boll.yDelta *= -1;
   }
 
-  if (board.x < 0) {
+  if (board.x + board.speed < 0) {
     board.x = 0;
-  } else if (board.x + board.width > canvas.width) {
+  } else if (board.x + board.width - board.speed > canvas.width) {
     board.x = canvas.width - board.width;
   }
 
