@@ -1,6 +1,6 @@
 let canvas = document.querySelector("canvas");
 let info = document.querySelector(".info");
-let description = document.querySelector('.info__description')
+let description = document.querySelector(".info__description");
 let message = document.querySelector(".info__message");
 let score = document.querySelector(".info__score");
 let lives = document.querySelector(".info__lives");
@@ -12,6 +12,7 @@ let resGame = false;
 let width = 220;
 let size = 25;
 let boardX = canvas.width / 2 - width / 2;
+let lose = true;
 
 let ctx = canvas.getContext("2d");
 
@@ -44,10 +45,12 @@ function randomColor() {
   return `rgb(${myRed}, ${myGreen}, ${myBlue})`;
 }
 
+
 function createBoard() {
   ctx.fillStyle = "orange";
   ctx.fillRect(board.x, board.y, board.width, board.height);
 }
+
 
 function createBoll() {
   ctx.fillStyle = "red";
@@ -56,12 +59,14 @@ function createBoll() {
   ctx.fill();
 }
 
+
 function createBlocks() {
   for (let i = 0; i < blocks.length; i++) {
     ctx.fillStyle = blocks[i].color;
     ctx.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
   }
 }
+
 
 function addBlocks() {
   let random = Math.floor(Math.random() * 6) + 3;
@@ -79,6 +84,7 @@ function addBlocks() {
   }
 }
 
+
 function touch(obj1, obj2) {
   return (
     obj1.x < obj2.x + obj2.width &&
@@ -88,6 +94,7 @@ function touch(obj1, obj2) {
   );
 }
 
+
 function bollStartPosition() {
   boll.x = boardX + board.width / 2 - size / 2;
   boll.y = board.y - size;
@@ -96,9 +103,9 @@ function bollStartPosition() {
   board.x = boardX;
 }
 
+
 function update() {
   board.x += board.xDelta;
-
   boll.x += boll.xDelta;
   boll.y += boll.yDelta;
 
@@ -121,6 +128,7 @@ function update() {
 
   if (!blocks.length) {
     message.textContent = "YOU WIN";
+    lose = true;
     bollStartPosition();
   }
 
@@ -134,8 +142,9 @@ function update() {
     if (boll.y > canvas.height) {
       bollStartPosition();
       gameCount--;
-      if(gameCount>0){
-        description.classList.remove('info__description--none')
+      lose = true;
+      if (gameCount > 0) {
+        description.classList.remove("info__description--none");
       }
 
       if (gameCount === 0) {
@@ -176,13 +185,19 @@ function update() {
   }
 }
 
+
 function draw() {
   createBoard();
   createBoll();
   createBlocks();
 }
 
+
 function loop() {
+  if (lose) {
+    return;
+  }
+
   requestAnimationFrame(loop);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -192,9 +207,25 @@ function loop() {
 
 document.addEventListener("keydown", (event) => {
   if (event.code === "ArrowLeft") {
-    board.xDelta = -board.speed;
+    if (!boll.xDelta && !boll.yDelta) {
+      if (board.x > 0) {
+        board.x -= 10;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        (boll.x = board.x + board.width / 2 - size / 2), draw();
+      }
+    } else {
+      board.xDelta = -board.speed;
+    }
   } else if (event.code === "ArrowRight") {
-    board.xDelta = board.speed;
+    if (!boll.xDelta && !boll.yDelta) {
+      if (board.x + board.width < canvas.width) {
+        board.x += 10;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        (boll.x = board.x + board.width / 2 - size / 2), draw();
+      }
+    } else {
+      board.xDelta = board.speed;
+    }
   } else if (event.code === "Space") {
     if (resGame) {
       if (gameCount > 0) {
@@ -202,12 +233,15 @@ document.addEventListener("keydown", (event) => {
           let arrow = Math.round(Math.random());
           boll.xDelta = arrow ? boll.speed : -boll.speed;
           boll.yDelta = -boll.speed;
-          description.classList.add('info__description--none')
+          description.classList.add("info__description--none");
+          lose = false;
+          loop();
         }
       }
     }
   }
 });
+
 
 document.addEventListener("keyup", () => {
   board.xDelta = 0;
@@ -216,21 +250,26 @@ document.addEventListener("keyup", () => {
   }
 });
 
+
 restart.addEventListener("click", () => {
+  lose = true;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   resGame = true;
   count = 0;
   blocks.length = 0;
   addBlocks();
   bollStartPosition();
+  draw();
   gameCount = 3;
   message.textContent = "";
-  description.classList.remove('info__description--none')
+  description.classList.remove("info__description--none");
 });
+
 
 start.addEventListener("click", () => {
   start.classList.add("button--start--none");
   resGame = true;
   addBlocks();
   info.style.display = "block";
-  loop();
+  draw();
 });
