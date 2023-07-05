@@ -1,5 +1,6 @@
 let canvas = document.querySelector("canvas");
 let info = document.querySelector(".info");
+let description = document.querySelector('.info__description')
 let message = document.querySelector(".info__message");
 let score = document.querySelector(".info__score");
 let lives = document.querySelector(".info__lives");
@@ -9,7 +10,7 @@ let gameCount = 3;
 let count = 0;
 let resGame = false;
 let width = 220;
-let size = 20;
+let size = 25;
 let boardX = canvas.width / 2 - width / 2;
 
 let ctx = canvas.getContext("2d");
@@ -19,9 +20,9 @@ start.style.top = canvas.height / 2 + "px";
 let board = {
   xDelta: 0,
   x: boardX,
-  y: canvas.height - 100,
+  y: canvas.height - 50,
   width,
-  height: 70,
+  height: 15,
   speed: 10,
 };
 
@@ -31,7 +32,7 @@ let boll = {
   x: board.x + board.width / 2 - size / 2,
   y: board.y - size,
   radius: size,
-  speed: 2,
+  speed: 5,
 };
 
 let blocks = [];
@@ -44,7 +45,7 @@ function randomColor() {
 }
 
 function createBoard() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "orange";
   ctx.fillRect(board.x, board.y, board.width, board.height);
 }
 
@@ -133,6 +134,9 @@ function update() {
     if (boll.y > canvas.height) {
       bollStartPosition();
       gameCount--;
+      if(gameCount>0){
+        description.classList.remove('info__description--none')
+      }
 
       if (gameCount === 0) {
         message.textContent = "YOU LOSE";
@@ -198,6 +202,7 @@ document.addEventListener("keydown", (event) => {
           let arrow = Math.round(Math.random());
           boll.xDelta = arrow ? boll.speed : -boll.speed;
           boll.yDelta = -boll.speed;
+          description.classList.add('info__description--none')
         }
       }
     }
@@ -219,6 +224,7 @@ restart.addEventListener("click", () => {
   bollStartPosition();
   gameCount = 3;
   message.textContent = "";
+  description.classList.remove('info__description--none')
 });
 
 start.addEventListener("click", () => {
