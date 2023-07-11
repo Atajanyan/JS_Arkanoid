@@ -6,11 +6,13 @@ let score = document.querySelector(".info__score");
 let lives = document.querySelector(".info__lives");
 let restart = document.querySelector(".button--restart");
 let start = document.querySelector(".button--start");
+
+
 let gameCount = 3;
 let count = 0;
-let resGame = false;
+let restartGame = false;
 let width = 220;
-let size = 25;
+let ballSize = 25;
 let boardX = canvas.width / 2 - width / 2;
 let lose = true;
 
@@ -19,48 +21,48 @@ let ctx = canvas.getContext("2d");
 start.style.top = canvas.height / 2 + "px";
 
 let board = {
-  xDelta: 0,
+  dx: 0,
   x: boardX,
   y: canvas.height - 50,
   width,
   height: 15,
-  speed: 10,
+  speed: 8,
 };
 
-let boll = {
-  xDelta: 0,
-  yDelta: 0,
-  x: board.x + board.width / 2 - size / 2,
-  y: board.y - size,
-  radius: size,
-  speed: 5,
+let  ball = {
+  dx: 0,
+  dy: 0,
+  x: board.x + board.width / 2 - ballSize / 2,
+  y: board.y - ballSize,
+  radius: ballSize,
+  speed: 3,
 };
 
 let blocks = [];
 
 function randomColor() {
-  let myRed = Math.floor(Math.random() * 256);
-  let myGreen = Math.floor(Math.random() * 256);
-  let myBlue = Math.floor(Math.random() * 256);
-  return `rgb(${myRed}, ${myGreen}, ${myBlue})`;
+  let Red = Math.floor(Math.random() * 256);
+  let Green = Math.floor(Math.random() * 256);
+  let Blue = Math.floor(Math.random() * 256);
+  return `rgb(${Red}, ${Green}, ${Blue})`;
 }
 
 
-function createBoard() {
+function drawBoard() {
   ctx.fillStyle = "orange";
   ctx.fillRect(board.x, board.y, board.width, board.height);
 }
 
 
-function createBoll() {
+function drawBall() {
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.roundRect(boll.x, boll.y, boll.radius, boll.radius, [size]);
+  ctx.roundRect( ball.x,  ball.y,  ball.radius,  ball.radius, [ballSize]);
   ctx.fill();
 }
 
 
-function createBlocks() {
+function drawBlocks() {
   for (let i = 0; i < blocks.length; i++) {
     ctx.fillStyle = blocks[i].color;
     ctx.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
@@ -68,15 +70,15 @@ function createBlocks() {
 }
 
 
-function addBlocks() {
-  let random = Math.floor(Math.random() * 6) + 3;
-  for (let j = 0; j < random; j++) {
-    let randomXNum = Math.floor(Math.random() * 6) + 3;
-    for (let i = 0; i < randomXNum; i++) {
+function createBlocks() {
+  let randomRows = Math.floor(Math.random() * 6) + 3;
+  for (let j = 0; j < randomRows; j++) {
+    let randomColumns = Math.floor(Math.random() * 6) + 3;
+    for (let i = 0; i < randomColumns; i++) {
       blocks.push({
-        x: (i * canvas.width) / randomXNum,
+        x: (i * canvas.width) / randomColumns,
         y: j * 40,
-        width: canvas.width / randomXNum,
+        width: canvas.width / randomColumns,
         height: 40,
         color: randomColor(),
       });
@@ -95,29 +97,29 @@ function touch(obj1, obj2) {
 }
 
 
-function bollStartPosition() {
-  boll.x = boardX + board.width / 2 - size / 2;
-  boll.y = board.y - size;
-  boll.xDelta = 0;
-  boll.yDelta = 0;
-  board.x = boardX;
+function ballStartPosition() {
+   ball.x = boardX + board.width / 2 - ballSize / 2;
+   ball.y = board.y - ballSize;
+   ball.dx = 0;
+   ball.dy = 0;
+   board.x = boardX;
 }
 
 
 function update() {
-  board.x += board.xDelta;
-  boll.x += boll.xDelta;
-  boll.y += boll.yDelta;
+   board.x += board.dx;
+   ball.x +=  ball.dx;
+   ball.y +=  ball.dy;
 
   lives.textContent = `YOUR LIVES : ${gameCount}`;
   score.textContent = `YOUR SCORE : ${count}`;
 
-  if (boll.x <= 0 || boll.x + boll.radius >= canvas.width) {
-    boll.xDelta *= -1;
+  if ( ball.x <= 0 ||  ball.x +  ball.radius >= canvas.width) {
+     ball.dx *= -1;
   }
 
-  if (boll.y - boll.speed < 0) {
-    boll.yDelta *= -1;
+  if ( ball.y -  ball.speed < 0) {
+     ball.dy *= -1;
   }
 
   if (board.x + board.speed < 0) {
@@ -129,18 +131,18 @@ function update() {
   if (!blocks.length) {
     message.textContent = "YOU WIN";
     lose = true;
-    bollStartPosition();
+    ballStartPosition();
   }
 
-  if (resGame) {
-    board.x += board.xDelta;
+  if ( restartGame ) {
+    board.x += board.dx;
 
-    if (!boll.xDelta && !boll.yDelta) {
-      boll.x = board.x + board.width / 2 - size / 2;
+    if (!ball.dx && !ball.dy) {
+       ball.x = board.x + board.width / 2 - ballSize / 2;
     }
 
-    if (boll.y > canvas.height) {
-      bollStartPosition();
+    if ( ball.y > canvas.height ) {
+      ballStartPosition();
       gameCount--;
       lose = true;
       if (gameCount > 0) {
@@ -152,32 +154,32 @@ function update() {
       }
     }
 
-    if (touch(boll, board)) {
-      if (boll.y + boll.radius - boll.speed <= board.y) {
-        boll.yDelta *= -1;
-        boll.y = board.y - boll.radius;
-      } else if (boll.x <= board.x + boll.radius) {
-        boll.xDelta *= -1;
-        boll.x = board.x - boll.speed - boll.radius;
+    if (touch( ball, board)) {
+      if ( ball.y +  ball.radius -  ball.speed <= board.y) {
+         ball.dy *= -1;
+         ball.y = board.y -  ball.radius;
+      } else if ( ball.x <= board.x +  ball.radius) {
+         ball.dx *= -1;
+         ball.x = board.x -  ball.speed -  ball.radius;
       } else {
-        boll.xDelta *= -1;
-        boll.x = board.x + board.width + boll.speed;
+         ball.dx *= -1;
+         ball.x = board.x + board.width +  ball.speed;
       }
     }
 
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
 
-      if (touch(boll, block)) {
+      if (touch( ball, block)) {
         blocks.splice(i, 1);
         count++;
         if (
-          boll.y + boll.radius + boll.speed <= block.y ||
-          boll.y >= block.y + block.height - boll.speed
+           ball.y +  ball.radius +  ball.speed <= block.y ||
+           ball.y >= block.y + block.height -  ball.speed
         ) {
-          boll.yDelta *= -1;
+           ball.dy *= -1;
         } else {
-          boll.xDelta *= -1;
+           ball.dx *= -1;
         }
         break;
       }
@@ -187,9 +189,9 @@ function update() {
 
 
 function draw() {
-  createBoard();
-  createBoll();
-  createBlocks();
+  drawBoard();
+  drawBall();
+  drawBlocks();
 }
 
 
@@ -198,44 +200,44 @@ function loop() {
     return;
   }
 
-  requestAnimationFrame(loop);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  
   update();
   draw();
+  requestAnimationFrame(loop);
 }
 
 document.addEventListener("keydown", (event) => {
   if (event.code === "ArrowLeft") {
-    if (!boll.xDelta && !boll.yDelta) {
+    if (!ball.dx && !ball.dy) {
       if (board.x > 0) {
         board.x -= 10;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        (boll.x = board.x + board.width / 2 - size / 2), draw();
+        ( ball.x = board.x + board.width / 2 - ballSize / 2), draw();
       }
     } else {
-      board.xDelta = -board.speed;
+      board.dx = -board.speed;
     }
   } else if (event.code === "ArrowRight") {
-    if (!boll.xDelta && !boll.yDelta) {
+    if (!ball.dx && !ball.dy) {
       if (board.x + board.width < canvas.width) {
         board.x += 10;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        (boll.x = board.x + board.width / 2 - size / 2), draw();
+        ( ball.x = board.x + board.width / 2 - ballSize / 2), draw();
       }
     } else {
-      board.xDelta = board.speed;
+      board.dx = board.speed;
     }
   } else if (event.code === "Space") {
-    if (resGame) {
+    if ( restartGame ) {
       if (gameCount > 0) {
-        if (!boll.xDelta && !boll.yDelta) {
+        if (!ball.dx && !ball.dy) {
           let arrow = Math.round(Math.random());
-          boll.xDelta = arrow ? boll.speed : -boll.speed;
-          boll.yDelta = -boll.speed;
-          description.classList.add("info__description--none");
-          lose = false;
-          loop();
+           ball.dx = arrow ?  ball.speed : - ball.speed;
+           ball.dy = - ball.speed;
+           description.classList.add("info__description--none");
+           lose = false;
+           loop();
         }
       }
     }
@@ -244,9 +246,9 @@ document.addEventListener("keydown", (event) => {
 
 
 document.addEventListener("keyup", () => {
-  board.xDelta = 0;
-  if (!boll.xDelta && !boll.yDelta) {
-    boll.xDelta = 0;
+  board.dx = 0;
+  if (!ball.dx && !ball.dy) {
+     ball.dx = 0;
   }
 });
 
@@ -254,11 +256,11 @@ document.addEventListener("keyup", () => {
 restart.addEventListener("click", () => {
   lose = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  resGame = true;
+  restartGame = true;
   count = 0;
   blocks.length = 0;
-  addBlocks();
-  bollStartPosition();
+  createBlocks();
+  ballStartPosition();
   draw();
   gameCount = 3;
   message.textContent = "";
@@ -268,8 +270,8 @@ restart.addEventListener("click", () => {
 
 start.addEventListener("click", () => {
   start.classList.add("button--start--none");
-  resGame = true;
-  addBlocks();
+  restartGame = true;
+  createBlocks();
   info.style.display = "block";
   draw();
 });
